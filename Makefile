@@ -1,25 +1,43 @@
-NAME = webserv
-CXX = c++
-CXXFLAGS = -Wall -Werror -Wextra -g -std=c++98
+NAME        := webserv
 
-SRC_DIR = src
-SRCS = $(wildcard $(SRC_DIR)/*.cpp)
-OBJS = $(SRCS:.cpp=.o)
+# --- DIRECTORIES ---
 
-$(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJS)
+SRCDIR      := src
+INCDIR      := include
+OBJDIR      := obj
+
+# --- SOURCES ---
+
+SRCS        := $(wildcard $(SRCDIR)/*.cpp)
+OBJS        := $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCS))
+
+# --- FLAGS ---
+
+CXX         := c++
+CXXFLAGS    := -Wall -Wextra -Werror -g -std=c++98 -I$(INCDIR)
+
+# --- COMMANDS ---
+
+RM          := rm -rf
+MKDIR       := mkdir -p
+
+# --- RULES ---
+
+.PHONY: all clean fclean re
 
 all: $(NAME)
 
-$(SRC_DIR)/%.o: $(SRC_DIR)/%.cpp
+$(NAME): $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	@$(MKDIR) $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS)
+	$(RM) $(OBJDIR)
 
 fclean: clean
-	rm -f $(NAME)
+	$(RM) $(NAME)
 
 re: fclean all
-
-.PHONY: all clean fclean re
